@@ -12,7 +12,7 @@ const spaceMono = Space_Mono({
 export const metadata: Metadata = {
 	title: "Plane Spotter - Your Personal Air Traffic Controller",
 	description:
-		"Real-time plane spotter — see every aircraft flying above you. Powered by OpenSky Network.",
+		"Real-time plane spotter. See every aircraft flying above you. Powered by OpenSky Network.",
 	authors: [{ name: "Oded Winberger" }],
 	keywords: [
 		"plane spotter",
@@ -53,6 +53,7 @@ export const viewport: Viewport = {
 	initialScale: 1,
 	maximumScale: 1,
 	userScalable: false,
+	viewportFit: "cover",
 	themeColor: [
 		{ media: "(prefers-color-scheme: light)", color: "#f8fafc" },
 		{ media: "(prefers-color-scheme: dark)", color: "#0a0a0a" },
