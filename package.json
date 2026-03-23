@@ -3,7 +3,14 @@
 	"version": "0.1.0",
 	"description": "Real-time plane spotter — see every aircraft flying above you, powered by OpenSky Network.",
 	"author": "Oded Winberger",
-	"keywords": ["plane-spotter", "aviation", "opensky", "real-time", "nextjs", "pwa"],
+	"keywords": [
+		"plane-spotter",
+		"aviation",
+		"opensky",
+		"real-time",
+		"nextjs",
+		"pwa"
+	],
 	"private": true,
 	"scripts": {
 		"dev": "next dev",
@@ -24,11 +31,13 @@
 		"@radix-ui/react-switch": "1.2.6",
 		"class-variance-authority": "^0.7.1",
 		"clsx": "^2.1.1",
+		"jotai": "^2.18.1",
 		"lucide-react": "^0.577.0",
 		"next": "16.2.1",
 		"next-themes": "^0.4.6",
 		"react": "19.2.4",
 		"react-dom": "19.2.4",
+		"swr": "^2.4.1",
 		"tailwind-merge": "^3.3.1"
 	},
 	"devDependencies": {
