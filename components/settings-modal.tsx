@@ -2,7 +2,7 @@
 
 import { Settings } from "lucide-react";
 import { useTheme } from "next-themes";
-import { useMemo, useState } from "react";
+import { memo, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
 	Dialog,
@@ -36,7 +36,7 @@ interface SettingsModalProps {
 	onSave: (settings: UserSettings) => void;
 }
 
-export function SettingsModal({ settings, onSave }: SettingsModalProps) {
+export const SettingsModal = memo(function SettingsModal({ settings, onSave }: SettingsModalProps) {
 	const [open, setOpen] = useState(false);
 	const [radiusKm, setRadiusKm] = useState(settings.radiusKm);
 	const [pollIntervalSecs, setPollIntervalSecs] = useState(
@@ -497,4 +497,4 @@ export function SettingsModal({ settings, onSave }: SettingsModalProps) {
 			</DialogContent>
 		</Dialog>
 	);
-}
+});

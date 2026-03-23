@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { memo, useMemo } from "react";
 import type { FlightData } from "@/lib/types";
 import { calculateDistance, OVERHEAD_THRESHOLD } from "@/lib/types";
 
@@ -14,7 +14,7 @@ interface RadarProps {
 	className?: string;
 }
 
-export function Radar({
+export const Radar = memo(function Radar({
 	flights,
 	userLat,
 	userLon,
@@ -346,4 +346,4 @@ export function Radar({
 			</div>
 		</div>
 	);
-}
+});

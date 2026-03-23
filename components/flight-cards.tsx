@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { memo, useMemo } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { FlightData } from "@/lib/types";
 import {
@@ -25,7 +25,7 @@ interface FlightCardsProps {
 	onSelectFlight: (icao24: string | null) => void;
 }
 
-export function FlightCards({
+export const FlightCards = memo(function FlightCards({
 	flights,
 	userLat,
 	userLon,
@@ -185,4 +185,4 @@ export function FlightCards({
 			})}
 		</div>
 	);
-}
+});

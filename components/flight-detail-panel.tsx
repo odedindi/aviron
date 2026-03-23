@@ -1,5 +1,6 @@
 "use client";
 
+import { memo } from "react";
 import { Button } from "@/components/ui/button";
 import type { FlightData } from "@/lib/types";
 import {
@@ -23,7 +24,7 @@ interface FlightDetailPanelProps {
 	onClose: () => void;
 }
 
-export function FlightDetailPanel({
+export const FlightDetailPanel = memo(function FlightDetailPanel({
 	flight,
 	userLat,
 	userLon,
@@ -251,4 +252,4 @@ export function FlightDetailPanel({
 			</div>
 		</div>
 	);
-}
+});
