@@ -10,7 +10,7 @@ const spaceMono = Space_Mono({
 });
 
 export const metadata: Metadata = {
-	title: "Plane Spotter - Your Personal Air Traffic Controller",
+	title: "Aviron - Your Personal Air Traffic Controller",
 	description:
 		"Real-time plane spotter. See every aircraft flying above you. Powered by OpenSky Network.",
 	authors: [{ name: "Oded Winberger" }],
@@ -26,7 +26,7 @@ export const metadata: Metadata = {
 	appleWebApp: {
 		capable: true,
 		statusBarStyle: "black-translucent",
-		title: "Plane Spotter",
+		title: "Aviron",
 	},
 	formatDetection: {
 		telephone: false,
@@ -42,7 +42,7 @@ export const metadata: Metadata = {
 		],
 	},
 	openGraph: {
-		title: "Plane Spotter",
+		title: "Aviron",
 		description: "See every plane flying above you in real time.",
 		type: "website",
 	},

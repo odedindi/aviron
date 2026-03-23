@@ -1,6 +1,6 @@
 {
-	"name": "Plane Spotter",
-	"short_name": "Plane Spotter",
+	"name": "Aviron",
+	"short_name": "Aviron",
 	"description": "Your personal air traffic controller. See every plane flying above you in real time.",
 	"start_url": "/",
 	"display": "standalone",
