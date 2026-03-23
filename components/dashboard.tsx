@@ -208,7 +208,7 @@ export function Dashboard() {
 			{/* Main Content */}
 			<main className="flex flex-1 flex-col overflow-hidden lg:flex-row">
 				{/* Radar Panel */}
-				<div className="flex items-center justify-center p-4 lg:w-[60%]">
+				<div className="flex min-h-0 flex-1 items-center justify-center p-4 lg:w-[60%] lg:flex-none">
 					<Radar
 						flights={flights}
 						userLat={s.latitude}
@@ -216,7 +216,7 @@ export function Dashboard() {
 						radiusKm={s.radiusKm}
 						selectedFlight={selectedFlight}
 						onSelectFlight={setSelectedFlight}
-						className="aspect-square w-full max-w-125 lg:max-w-none"
+						className="aspect-square w-full max-w-[min(100%,calc(100vh-10rem))]"
 					/>
 				</div>
 

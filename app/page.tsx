@@ -1,6 +1,7 @@
 "use client";
 
 import { useAtom } from "jotai";
+import { useEffect, useState } from "react";
 import { Dashboard } from "@/components/dashboard";
 import { Onboarding } from "@/components/onboarding";
 import { RadarLoader } from "@/components/radar-loader";
@@ -9,14 +10,16 @@ import type { UserSettings } from "@/lib/types";
 
 export default function PlaneSpotter() {
 	const [settings, setSettings] = useAtom(settingsAtom);
+	// atomWithStorage reads localStorage synchronously, but only after the
+	// component mounts (client-side). Track mount so we never flash Onboarding.
+	const [mounted, setMounted] = useState(false);
+	useEffect(() => setMounted(true), []);
 
 	const handleOnboardingComplete = (newSettings: UserSettings) => {
 		setSettings(newSettings);
 	};
 
-	// atomWithStorage initialises synchronously on the client but returns null
-	// on the very first render (before localStorage is hydrated). Show a loader.
-	if (settings === undefined) {
+	if (!mounted) {
 		return (
 			<div className="scanlines flex h-screen items-center justify-center bg-background">
 				<div className="space-y-4 text-center">
