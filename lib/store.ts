@@ -4,7 +4,7 @@ import type { UserSettings } from "./types";
 
 // ─── Persisted ───────────────────────────────────────────────────────────────
 
-const STORAGE_KEY = "plane-spotter-settings";
+const STORAGE_KEY = "aviron-settings";
 
 export const settingsAtom = atomWithStorage<UserSettings | null>(
 	STORAGE_KEY,

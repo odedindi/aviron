@@ -6,7 +6,7 @@ import { Onboarding } from "@/components/onboarding";
 import { settingsAtom } from "@/lib/store";
 import type { UserSettings } from "@/lib/types";
 
-export default function PlaneSpotterClient() {
+export default function AvironClient() {
 	const [settings, setSettings] = useAtom(settingsAtom);
 
 	const handleOnboardingComplete = (newSettings: UserSettings) => {

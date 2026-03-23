@@ -156,7 +156,7 @@ export function Onboarding({ onComplete }: OnboardingProps) {
 							</svg>
 						</div>
 						<h1 className="font-bold text-3xl text-glow text-primary">
-							PLANE SPOTTER
+							AVIRON
 						</h1>
 						<p className="text-lg text-muted-foreground">
 							Your personal air traffic controller
@@ -656,7 +656,7 @@ export function Onboarding({ onComplete }: OnboardingProps) {
 									onClick={launchApp}
 									className="glow bg-primary px-8 py-6 text-lg text-primary-foreground hover:bg-primary/90"
 								>
-									{">>>"} LAUNCH PLANE SPOTTER {"<<<"}
+									{">>>"} LAUNCH AVIRON {"<<<"}
 								</Button>
 							</>
 						)}

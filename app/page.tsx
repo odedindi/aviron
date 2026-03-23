@@ -3,7 +3,7 @@
 import dynamic from "next/dynamic";
 import { RadarLoader } from "@/components/radar-loader";
 
-const PlaneSpotterClient = dynamic(() => import("./plane-spotter-client"), {
+const AvironClient = dynamic(() => import("./aviron-client"), {
 	ssr: false,
 	loading: () => (
 		<div className="scanlines flex h-screen items-center justify-center bg-background">
@@ -21,5 +21,5 @@ const PlaneSpotterClient = dynamic(() => import("./plane-spotter-client"), {
 });
 
 export default function Page() {
-	return <PlaneSpotterClient />;
+	return <AvironClient />;
 }

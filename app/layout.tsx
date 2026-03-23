@@ -12,10 +12,10 @@ const spaceMono = Space_Mono({
 export const metadata: Metadata = {
 	title: "Aviron - Your Personal Air Traffic Controller",
 	description:
-		"Real-time plane spotter. See every aircraft flying above you. Powered by OpenSky Network.",
+		"Real-time aviation tracker. See every aircraft flying above you. Powered by OpenSky Network.",
 	authors: [{ name: "Oded Winberger" }],
 	keywords: [
-		"plane spotter",
+		"aviron",
 		"aviation",
 		"aircraft tracking",
 		"opensky",
