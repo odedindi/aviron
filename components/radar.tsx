@@ -276,6 +276,8 @@ export const Radar = memo(function Radar({
 						}}
 						style={{ pointerEvents: "all" }}
 					>
+						{/* Invisible hit area for easier clicking */}
+						<circle r="6" fill="transparent" />
 						{/* Selection ring */}
 						{plane.isSelected && (
 							<circle

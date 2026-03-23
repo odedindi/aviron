@@ -1,4 +1,5 @@
 import { useSetAtom } from "jotai";
+import { useRef } from "react";
 import useSWR from "swr";
 import { generateDemoFlights, getDemoRoutes } from "@/lib/demo-data";
 import { refreshKeyAtom } from "@/lib/store";
@@ -55,6 +56,26 @@ function parseFlights(
  */
 export function useFlights(settings: UserSettings | null): FlightState {
 	const setRefreshKey = useSetAtom(refreshKeyAtom);
+
+	// Stable demo flights — generated once per mount so that selecting a flight
+	// (which causes a re-render) doesn't regenerate a completely different set.
+	const stableDemoRef = useRef<{
+		flights: FlightData[];
+		routes: Record<string, { origin: string; destination: string }>;
+		key: string; // invalidate when lat/lon/radius changes
+	} | null>(null);
+
+	const getDemoData = (lat: number, lon: number, radius: number) => {
+		const key = `${lat},${lon},${radius}`;
+		if (!stableDemoRef.current || stableDemoRef.current.key !== key) {
+			stableDemoRef.current = {
+				flights: generateDemoFlights(lat, lon, radius),
+				routes: getDemoRoutes(),
+				key,
+			};
+		}
+		return stableDemoRef.current;
+	};
 
 	// SWR key: includes every field the fetcher needs.
 	// Stable tuple means theme/voice changes never trigger a refetch.
@@ -145,18 +166,28 @@ export function useFlights(settings: UserSettings | null): FlightState {
 		};
 	}
 
+	// API unavailable (server returned demoMode + errorCode) — show demo + error badge
+	if (bodyErrorCode === "api_unavailable") {
+		const demo = settings
+			? getDemoData(settings.latitude, settings.longitude, settings.radiusKm)
+			: { flights: [], routes: {} };
+		return {
+			flights: demo.flights,
+			routes: demo.routes,
+			isDemoMode: true,
+			apiError: "api_unavailable",
+			isLoading: false,
+		};
+	}
+
 	// Network/fetch error (thrown by fetcher) — fall back to demo
 	if (error && !data) {
-		const demoFlights = settings
-			? generateDemoFlights(
-					settings.latitude,
-					settings.longitude,
-					settings.radiusKm,
-				)
-			: [];
+		const demo = settings
+			? getDemoData(settings.latitude, settings.longitude, settings.radiusKm)
+			: { flights: [], routes: {} };
 		return {
-			flights: demoFlights,
-			routes: getDemoRoutes(),
+			flights: demo.flights,
+			routes: demo.routes,
 			isDemoMode: true,
 			apiError: null,
 			isLoading: false,
@@ -175,16 +206,12 @@ export function useFlights(settings: UserSettings | null): FlightState {
 				isLoading: true,
 			};
 		}
-		const demoFlights = settings
-			? generateDemoFlights(
-					settings.latitude,
-					settings.longitude,
-					settings.radiusKm,
-				)
-			: [];
+		const demo = settings
+			? getDemoData(settings.latitude, settings.longitude, settings.radiusKm)
+			: { flights: [], routes: {} };
 		return {
-			flights: demoFlights,
-			routes: getDemoRoutes(),
+			flights: demo.flights,
+			routes: demo.routes,
 			isDemoMode: true,
 			apiError: null,
 			isLoading: isLoading && !data,
