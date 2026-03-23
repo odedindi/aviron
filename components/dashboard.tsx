@@ -3,12 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useVoice } from "@/hooks/use-voice";
 import { generateDemoFlights, getDemoRoutes } from "@/lib/demo-data";
-import type {
-	FlightData,
-	Stats,
-	UserSettings,
-	VoiceSettings,
-} from "@/lib/types";
+import type { ApiErrorCode, FlightData, Stats, UserSettings, VoiceSettings } from "@/lib/types";
 import {
 	calculateDistance,
 	getDefaultVoiceSettings,
@@ -36,6 +31,7 @@ export function Dashboard({
 	>({});
 	const [isLoading, setIsLoading] = useState(true);
 	const [isDemoMode, setIsDemoMode] = useState(false);
+	const [apiError, setApiError] = useState<ApiErrorCode | null>(null);
 	const [refreshKey, setRefreshKey] = useState(0);
 	const [selectedFlight, setSelectedFlight] = useState<string | null>(null);
 	const [stats, setStats] = useState<Stats>({
@@ -77,8 +73,13 @@ export function Dashboard({
 			const response = await fetch(`/api/flights?${params}`, { headers });
 			const data = await response.json();
 
-			if (data.demoMode || !data.states || !data.states.length) {
-				// Use demo data
+			if (data.errorCode === "quota_exceeded" || data.errorCode === "invalid_credentials") {
+				setApiError(data.errorCode);
+				setIsDemoMode(false);
+				// Keep showing last known flights (stale but real)
+			} else if (data.demoMode || !data.states || !data.states.length) {
+				// Genuine no-data (network error, api_unavailable, or empty area) — fall back to demo
+				setApiError(null);
 				setIsDemoMode(true);
 				const demoFlights = generateDemoFlights(
 					settings.latitude,
@@ -88,6 +89,7 @@ export function Dashboard({
 				setFlights(demoFlights);
 				setRoutes(getDemoRoutes());
 			} else {
+				setApiError(null);
 				setIsDemoMode(false);
 				// Parse OpenSky response
 				const parsedFlights: FlightData[] = data.states
@@ -181,12 +183,12 @@ export function Dashboard({
 		fetchFlights();
 	}, [fetchFlights]);
 
-	// Polling — fetch every 15 s, bump refreshKey to restart the CSS progress bar
+	// Polling — fetch every N seconds, bump refreshKey to restart the CSS progress bar
 	useEffect(() => {
 		const interval = setInterval(() => {
 			fetchFlights();
 			setRefreshKey((k) => k + 1);
-		}, 15_000);
+		}, (settings.pollIntervalSecs ?? 60) * 1000);
 
 		return () => clearInterval(interval);
 	}, [fetchFlights]);
@@ -218,18 +220,30 @@ export function Dashboard({
 				</div>
 
 				<div className="flex items-center gap-3">
-					{/* Demo Mode Badge */}
-					{isDemoMode && (
+					{/* Error / Demo Mode Badges */}
+					{apiError === "quota_exceeded" && (
+						<span className="border border-yellow-500/50 bg-yellow-500/10 px-2 py-1 text-xs text-yellow-500">
+							QUOTA EXCEEDED · resets midnight UTC
+						</span>
+					)}
+					{apiError === "invalid_credentials" && (
+						<span className="border border-red-500/50 bg-red-500/10 px-2 py-1 text-xs text-red-500">
+							INVALID CREDENTIALS
+						</span>
+					)}
+					{!apiError && isDemoMode && (
 						<span className="border border-border bg-muted px-2 py-1 text-muted-foreground text-xs">
 							DEMO MODE
 						</span>
 					)}
 
 					{/* Refresh progress bar — pure CSS, restarted via key */}
+					{/* Refresh progress bar — pure CSS, restarted via key */}
 					<div
 						key={refreshKey}
 						className="radar-refresh hidden h-0.5 w-12 overflow-hidden bg-muted sm:block"
-						title="Refreshing in 15s"
+						title={`Refreshing in ${settings.pollIntervalSecs ?? 60}s`}
+						style={{ "--poll-interval": `${settings.pollIntervalSecs ?? 60}s` } as React.CSSProperties}
 					>
 						<div className="radar-refresh-bar h-full bg-primary" />
 					</div>

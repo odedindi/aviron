@@ -1,3 +1,5 @@
+export type ApiErrorCode = "quota_exceeded" | "invalid_credentials" | "api_unavailable";
+
 export interface FlightData {
 	icao24: string;
 	callsign: string;
@@ -34,6 +36,7 @@ export interface UserSettings {
 	onboardingComplete: boolean;
 	theme?: "light" | "dark" | "system";
 	units?: "metric" | "imperial";
+	pollIntervalSecs?: number; // default 60
 }
 
 export interface Stats {

@@ -117,6 +117,7 @@ export function Onboarding({ onComplete }: OnboardingProps) {
 				voiceSettings,
 				onboardingComplete: true,
 				units: "metric",
+			pollIntervalSecs: 60,
 			});
 		}, 2500);
 	};

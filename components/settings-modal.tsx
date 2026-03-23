@@ -39,6 +39,9 @@ interface SettingsModalProps {
 export function SettingsModal({ settings, onSave }: SettingsModalProps) {
 	const [open, setOpen] = useState(false);
 	const [radiusKm, setRadiusKm] = useState(settings.radiusKm);
+	const [pollIntervalSecs, setPollIntervalSecs] = useState(
+		settings.pollIntervalSecs ?? 60,
+	);
 	const [units, setUnits] = useState<"metric" | "imperial">(
 		settings.units ?? "metric",
 	);
@@ -72,6 +75,7 @@ export function SettingsModal({ settings, onSave }: SettingsModalProps) {
 			apiClientSecret: apiClientSecret || undefined,
 			voiceEnabled: voiceSettings.enabled,
 			voiceSettings,
+			pollIntervalSecs,
 		});
 		setOpen(false);
 	};
@@ -180,6 +184,31 @@ export function SettingsModal({ settings, onSave }: SettingsModalProps) {
 								Dark
 							</Button>
 						</div>
+					</div>
+
+					{/* Poll Interval */}
+					<div className="space-y-3">
+						<Label className="text-muted-foreground text-sm">POLL INTERVAL</Label>
+						<div className="flex gap-2">
+							{([30, 60, 120] as const).map((secs) => (
+								<Button
+									key={secs}
+									variant={pollIntervalSecs === secs ? "default" : "outline"}
+									size="sm"
+									onClick={() => setPollIntervalSecs(secs)}
+									className={
+										pollIntervalSecs === secs
+											? "bg-primary text-primary-foreground"
+											: "border-border"
+									}
+								>
+									{secs}s
+								</Button>
+							))}
+						</div>
+						<p className="text-muted-foreground text-xs">
+							At 60s: ~1,440 req/day · 30s: ~2,880 · 120s: ~720
+						</p>
 					</div>
 
 					{/* Units */}

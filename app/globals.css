@@ -279,7 +279,7 @@
 }
 
 .radar-refresh-bar {
-	animation: radar-refresh-shrink 15s linear forwards;
+	animation: radar-refresh-shrink var(--poll-interval, 60s) linear forwards;
 }
 
 /* PWA install button animation */
