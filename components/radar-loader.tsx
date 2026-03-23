@@ -75,6 +75,13 @@ export function RadarLoader({
 				strokeWidth="0.3"
 				opacity="0.3"
 			/>
+			{/*
+			 * Anchor the sweep to wall-clock time so this loader and the real Radar
+			 * component share the same rotation phase. Without this, CSS resets the
+			 * animation to 0° when the loader unmounts and the dashboard mounts,
+			 * causing a visible jump. A negative delay of -(now % duration) makes
+			 * the animation behave as if it started at the Unix epoch.
+			 */}
 			{/* Radar sweep */}
 			<path
 				d="M50,50 L50,5 A45,45 0 0,1 95,50 Z"

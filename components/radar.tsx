@@ -243,6 +243,13 @@ export const Radar = memo(function Radar({
 					{Math.round(radiusKm * 0.2)}km
 				</text>
 
+				{/*
+				 * Anchor the sweep to wall-clock time so this Radar and the RadarLoader
+				 * component share the same rotation phase. Without this, CSS resets the
+				 * animation to 0° when the loader unmounts and the dashboard mounts,
+				 * causing a visible jump. A negative delay of -(now % duration) makes
+				 * the animation behave as if it started at the Unix epoch.
+				 */}
 				{/* Radar sweep */}
 				<path
 					d="M50,50 L50,5 A45,45 0 0,1 95,50 Z"
