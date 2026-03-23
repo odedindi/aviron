@@ -430,9 +430,12 @@ export function SettingsModal({ settings, onSave }: SettingsModalProps) {
 							onChange={(e) => setApiClientSecret(e.target.value)}
 							className="border-border bg-input text-foreground placeholder:text-muted-foreground"
 						/>
-						<p className="text-muted-foreground text-xs">
-							Get free credentials at opensky-network.org
-						</p>
+					<p className="text-muted-foreground text-xs">
+						Get free credentials at opensky-network.org
+					</p>
+					<p className="text-muted-foreground text-xs">
+						Credentials are stored locally in your browser only.
+					</p>
 					</div>
 
 					{/* Location Info */}

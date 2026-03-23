@@ -447,9 +447,12 @@ export function Onboarding({ onComplete }: OnboardingProps) {
 							</div>
 						</div>
 
-						<p className="text-center text-muted-foreground text-xs">
-							Without credentials: 100 requests/day limit
-						</p>
+					<p className="text-center text-muted-foreground text-xs">
+						Without credentials: 100 requests/day limit
+					</p>
+					<p className="text-center text-muted-foreground text-xs">
+						Credentials are stored locally in your browser only.
+					</p>
 
 						<div className="flex gap-4">
 							<Button
