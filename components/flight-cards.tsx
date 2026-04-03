@@ -6,7 +6,6 @@ import type { FlightData } from "@/lib/types";
 import {
 	calculateDistance,
 	formatDistance,
-	getAirlineName,
 	getHeadingDirection,
 	metersToFeet,
 	msToKnots,
@@ -23,6 +22,7 @@ interface FlightCardsProps {
 	isLoading: boolean;
 	selectedFlight: string | null;
 	onSelectFlight: (icao24: string | null) => void;
+	airlineNames: Record<string, string>;
 }
 
 export const FlightCards = memo(function FlightCards({
@@ -35,6 +35,7 @@ export const FlightCards = memo(function FlightCards({
 	isLoading,
 	selectedFlight,
 	onSelectFlight,
+	airlineNames,
 }: FlightCardsProps) {
 	// Sort by distance once, pre-compute per-flight values — memoized to avoid recalc on every render
 	const sortedFlights = useMemo(() => {
@@ -90,7 +91,10 @@ export const FlightCards = memo(function FlightCards({
 			{sortedFlights.map((flight) => {
 				const { distance, isOverhead, callsign } = flight;
 				const isSelected = selectedFlight === flight.icao24;
-				const airline = getAirlineName(callsign);
+				const prefix = callsign.slice(0, 3).toUpperCase();
+				const isIcaoPrefix = /^[A-Z]{3}$/.test(prefix);
+				const resolvedName = isIcaoPrefix ? airlineNames[prefix] : undefined;
+				const isResolving = isIcaoPrefix && resolvedName === undefined;
 				const route = routes[callsign];
 
 				return (
@@ -126,7 +130,15 @@ export const FlightCards = memo(function FlightCards({
 										</span>
 									)}
 								</div>
-								<p className="text-muted-foreground text-sm">{airline}</p>
+								<p className="text-muted-foreground text-sm">
+									{isResolving ? (
+										<span className="animate-pulse text-muted-foreground/50">
+											{prefix}
+										</span>
+									) : (
+										(resolvedName ?? "")
+									)}
+								</p>
 							</div>
 							<div className="text-right text-muted-foreground text-xs">
 								<p>{formatDistance(distance, units)}</p>

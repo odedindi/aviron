@@ -1,7 +1,4 @@
-export type ApiErrorCode =
-	| "quota_exceeded"
-	| "invalid_credentials"
-	| "api_unavailable";
+export type ApiErrorCode = "api_unavailable";
 
 export interface FlightData {
 	icao24: string;
@@ -32,8 +29,6 @@ export interface UserSettings {
 	latitude: number;
 	longitude: number;
 	radiusKm: number;
-	apiClientId?: string;
-	apiClientSecret?: string;
 	voiceEnabled: boolean;
 	voiceSettings?: VoiceSettings;
 	onboardingComplete: boolean;
@@ -265,87 +260,6 @@ export const VOICE_TRANSLATIONS: Record<
 		heading: "suunta",
 	},
 };
-
-// Major airline ICAO prefixes
-const AIRLINE_MAP: Record<string, string> = {
-	// Israeli
-	LY: "El Al",
-	IZ: "Arkia",
-	"6H": "Israir",
-	// US
-	AA: "American Airlines",
-	UA: "United Airlines",
-	DL: "Delta Air Lines",
-	WN: "Southwest Airlines",
-	AS: "Alaska Airlines",
-	B6: "JetBlue Airways",
-	NK: "Spirit Airlines",
-	F9: "Frontier Airlines",
-	// European
-	BA: "British Airways",
-	LH: "Lufthansa",
-	AF: "Air France",
-	KL: "KLM",
-	IB: "Iberia",
-	AZ: "ITA Airways",
-	SK: "SAS",
-	AY: "Finnair",
-	TP: "TAP Portugal",
-	SN: "Brussels Airlines",
-	OS: "Austrian Airlines",
-	LX: "Swiss",
-	// Low-cost European
-	FR: "Ryanair",
-	U2: "easyJet",
-	W6: "Wizz Air",
-	VY: "Vueling",
-	NO: "Norwegian",
-	// Middle East
-	EK: "Emirates",
-	QR: "Qatar Airways",
-	EY: "Etihad",
-	GF: "Gulf Air",
-	SV: "Saudia",
-	RJ: "Royal Jordanian",
-	MS: "EgyptAir",
-	// Asian
-	SQ: "Singapore Airlines",
-	CX: "Cathay Pacific",
-	NH: "ANA",
-	JL: "Japan Airlines",
-	KE: "Korean Air",
-	OZ: "Asiana",
-	TG: "Thai Airways",
-	MH: "Malaysia Airlines",
-	CI: "China Airlines",
-	BR: "EVA Air",
-	CA: "Air China",
-	MU: "China Eastern",
-	CZ: "China Southern",
-	"9C": "Spring Airlines",
-	// Oceania
-	QF: "Qantas",
-	NZ: "Air New Zealand",
-	VA: "Virgin Australia",
-	// Americas
-	AC: "Air Canada",
-	AM: "Aeroméxico",
-	LA: "LATAM",
-	AV: "Avianca",
-	CM: "Copa Airlines",
-	// Cargo
-	FX: "FedEx Express",
-	"5X": "UPS Airlines",
-	// Turkish
-	TK: "Turkish Airlines",
-	PC: "Pegasus Airlines",
-};
-
-export function getAirlineName(callsign: string): string {
-	if (!callsign) return "Unknown Airline";
-	const prefix = callsign.substring(0, 2).toUpperCase();
-	return AIRLINE_MAP[prefix] || "Unknown Airline";
-}
 
 export function getHeadingDirection(heading: number): string {
 	const directions = ["N", "NE", "E", "SE", "S", "SW", "W", "NW"];

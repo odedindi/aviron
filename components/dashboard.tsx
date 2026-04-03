@@ -2,6 +2,7 @@
 
 import { useAtom, useAtomValue } from "jotai";
 import { useCallback, useEffect, useMemo, useRef } from "react";
+import { useAirlineNames } from "@/hooks/use-airline-names";
 import { useFlights } from "@/hooks/use-flights";
 import { useVoice } from "@/hooks/use-voice";
 import { refreshKeyAtom, selectedFlightAtom, settingsAtom } from "@/lib/store";
@@ -28,20 +29,24 @@ export function Dashboard() {
 	const voiceSettings: VoiceSettings =
 		s.voiceSettings || getDefaultVoiceSettings();
 
-	const { announceOverheadFlight, stopSpeaking } = useVoice(voiceSettings);
-
-	// Stable refs so the flights effect doesn't need these in its dep array
-	const announceRef = useRef(announceOverheadFlight);
-	announceRef.current = announceOverheadFlight;
-	const voiceEnabledRef = useRef(voiceSettings.enabled);
-	voiceEnabledRef.current = voiceSettings.enabled;
-
 	// ── Per-session counters (not in atoms — intentionally reset on page load) ──
 	const todayFlights = useRef<Set<string>>(new Set());
 	const hourlyCount = useRef<Record<number, number>>({});
 
 	// ── Flight data via SWR ───────────────────────────────────────────────────
 	const { flights, routes, isDemoMode, apiError, isLoading } = useFlights(s);
+	const airlineNames = useAirlineNames(flights);
+
+	const { announceOverheadFlight, stopSpeaking } = useVoice(
+		voiceSettings,
+		airlineNames,
+	);
+
+	// Stable refs so the flights effect doesn't need these in its dep array
+	const announceRef = useRef(announceOverheadFlight);
+	announceRef.current = announceOverheadFlight;
+	const voiceEnabledRef = useRef(voiceSettings.enabled);
+	voiceEnabledRef.current = voiceSettings.enabled;
 
 	// ── Stats derived from flights ────────────────────────────────────────────
 	const stats = useMemo((): Stats => {
@@ -126,25 +131,9 @@ export function Dashboard() {
 				</div>
 
 				<div className="flex items-center gap-3">
-					{/* Error / Demo Mode Badges */}
-					{apiError === "quota_exceeded" && (
-						<span className="border border-yellow-500/50 bg-yellow-500/10 px-2 py-1 text-xs text-yellow-500">
-							QUOTA EXCEEDED · resets midnight UTC
-						</span>
-					)}
-					{apiError === "invalid_credentials" && (
-						<span className="border border-red-500/50 bg-red-500/10 px-2 py-1 text-red-500 text-xs">
-							INVALID CREDENTIALS
-						</span>
-					)}
-					{apiError === "api_unavailable" && (
+					{(apiError === "api_unavailable" || isDemoMode) && (
 						<span className="border border-orange-500/50 bg-orange-500/10 px-2 py-1 text-orange-500 text-xs">
-							API UNAVAILABLE · demo mode
-						</span>
-					)}
-					{!apiError && isDemoMode && (
-						<span className="border border-border bg-muted px-2 py-1 text-muted-foreground text-xs">
-							DEMO MODE
+							{apiError ? "API UNAVAILABLE · demo mode" : "DEMO MODE"}
 						</span>
 					)}
 
@@ -235,6 +224,7 @@ export function Dashboard() {
 								units={s.units ?? "metric"}
 								route={routes[selectedFlightData.callsign?.trim() || ""]}
 								onClose={() => setSelectedFlight(null)}
+								airlineNames={airlineNames}
 							/>
 						</div>
 					)}
@@ -255,6 +245,7 @@ export function Dashboard() {
 						isLoading={isLoading}
 						selectedFlight={selectedFlight}
 						onSelectFlight={setSelectedFlight}
+						airlineNames={airlineNames}
 					/>
 				</div>
 			</main>

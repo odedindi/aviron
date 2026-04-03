@@ -7,7 +7,6 @@ import {
 	calculateDistance,
 	formatDistance,
 	formatSpeed,
-	getAirlineName,
 	getHeadingDirection,
 	metersToFeet,
 	msToKnots,
@@ -22,6 +21,7 @@ interface FlightDetailPanelProps {
 	units?: "metric" | "imperial";
 	route?: { origin: string; destination: string };
 	onClose: () => void;
+	airlineNames: Record<string, string>;
 }
 
 export const FlightDetailPanel = memo(function FlightDetailPanel({
@@ -32,6 +32,7 @@ export const FlightDetailPanel = memo(function FlightDetailPanel({
 	units = "metric",
 	route,
 	onClose,
+	airlineNames,
 }: FlightDetailPanelProps) {
 	const distance = calculateDistance(
 		userLat,
@@ -41,7 +42,10 @@ export const FlightDetailPanel = memo(function FlightDetailPanel({
 	);
 	const isOverhead = distance < radiusKm * OVERHEAD_THRESHOLD;
 	const callsign = flight.callsign?.trim() || flight.icao24;
-	const airline = getAirlineName(callsign);
+	const prefix = callsign.slice(0, 3).toUpperCase();
+	const isIcaoPrefix = /^[A-Z]{3}$/.test(prefix);
+	const resolvedName = isIcaoPrefix ? airlineNames[prefix] : undefined;
+	const isResolving = isIcaoPrefix && resolvedName === undefined;
 	const altitudeFt = metersToFeet(flight.altitude);
 	const speedKts = msToKnots(flight.velocity);
 	const verticalFpm = Math.round(flight.verticalRate * 196.85); // m/s to ft/min
@@ -61,7 +65,15 @@ export const FlightDetailPanel = memo(function FlightDetailPanel({
 							</span>
 						)}
 					</div>
-					<p className="text-muted-foreground">{airline}</p>
+					<p className="text-muted-foreground">
+						{isResolving ? (
+							<span className="animate-pulse text-muted-foreground/50">
+								{prefix}
+							</span>
+						) : (
+							(resolvedName ?? "")
+						)}
+					</p>
 					<p className="mt-1 text-muted-foreground text-xs">
 						{flight.originCountry}
 					</p>

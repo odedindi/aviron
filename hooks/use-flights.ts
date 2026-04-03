@@ -84,8 +84,6 @@ export function useFlights(settings: UserSettings | null): FlightState {
 		number, // lat
 		number, // lon
 		number, // radiusKm
-		string, // clientId
-		string, // clientSecret
 		number, // pollIntervalSecs
 	];
 	const swrKey: SwrKey | null = settings
@@ -94,8 +92,6 @@ export function useFlights(settings: UserSettings | null): FlightState {
 				settings.latitude,
 				settings.longitude,
 				settings.radiusKm,
-				settings.apiClientId ?? "",
-				settings.apiClientSecret ?? "",
 				settings.pollIntervalSecs ?? 60,
 			] as const)
 		: null; // null key suspends SWR — fetcher is never called when settings is null
@@ -107,20 +103,13 @@ export function useFlights(settings: UserSettings | null): FlightState {
 		lat,
 		lon,
 		radius,
-		clientId,
-		clientSecret,
 	]: SwrKey): Promise<RawApiResponse> => {
 		const params = new URLSearchParams({
 			lat: lat.toString(),
 			lon: lon.toString(),
 			radius: radius.toString(),
 		});
-		const headers: HeadersInit = {};
-		if (clientId && clientSecret) {
-			headers["x-opensky-client-id"] = clientId;
-			headers["x-opensky-client-secret"] = clientSecret;
-		}
-		const res = await fetch(`/api/flights?${params}`, { headers });
+		const res = await fetch(`/api/flights?${params}`);
 		if (!res.ok) throw new Error(`HTTP ${res.status}`);
 		return res.json();
 	};
@@ -150,23 +139,8 @@ export function useFlights(settings: UserSettings | null): FlightState {
 	// ── Derive FlightState from the raw SWR response ──────────────────────────
 
 	// Hard quota/auth errors come back as 200 with errorCode in the body
-	const bodyErrorCode = data?.errorCode ?? null;
+	const bodyErrorCode = data?.errorCode ? "api_unavailable" : null;
 
-	if (
-		bodyErrorCode === "quota_exceeded" ||
-		bodyErrorCode === "invalid_credentials"
-	) {
-		// Keep showing whatever flights were visible before — don't clobber with demo data
-		return {
-			flights: data?.states ? parseFlights(data.states) : [],
-			routes: {},
-			isDemoMode: false,
-			apiError: bodyErrorCode,
-			isLoading: isLoading && !data,
-		};
-	}
-
-	// API unavailable (server returned demoMode + errorCode) — show demo + error badge
 	if (bodyErrorCode === "api_unavailable") {
 		const demo = settings
 			? getDemoData(settings.latitude, settings.longitude, settings.radiusKm)

@@ -29,8 +29,6 @@ export function Onboarding({ onComplete }: OnboardingProps) {
 	const [manualLat, setManualLat] = useState("");
 	const [manualLon, setManualLon] = useState("");
 	const [radiusKm, setRadiusKm] = useState(20);
-	const [apiClientId, setApiClientId] = useState("");
-	const [apiClientSecret, setApiClientSecret] = useState("");
 	const [voiceSettings, setVoiceSettings] = useState<VoiceSettings>(
 		getDefaultVoiceSettings(),
 	);
@@ -111,8 +109,6 @@ export function Onboarding({ onComplete }: OnboardingProps) {
 				latitude,
 				longitude,
 				radiusKm,
-				apiClientId: apiClientId || undefined,
-				apiClientSecret: apiClientSecret || undefined,
 				voiceEnabled: voiceSettings.enabled,
 				voiceSettings,
 				onboardingComplete: true,
@@ -127,7 +123,7 @@ export function Onboarding({ onComplete }: OnboardingProps) {
 			<div className="w-full max-w-lg py-4">
 				{/* Progress Indicator */}
 				<div className="mb-8 flex justify-center gap-2">
-					{[1, 2, 3, 4, 5, 6].map((s) => (
+					{[1, 2, 3, 4, 5].map((s) => (
 						<div
 							key={s}
 							className={`h-3 w-3 border border-primary ${
@@ -163,8 +159,6 @@ export function Onboarding({ onComplete }: OnboardingProps) {
 						</p>
 						<p className="text-muted-foreground text-sm">
 							See every plane flying above you in real time.
-							<br />
-							Powered by OpenSky Network.
 						</p>
 						<Button
 							onClick={() => setStep(2)}
@@ -401,96 +395,8 @@ export function Onboarding({ onComplete }: OnboardingProps) {
 					</div>
 				)}
 
-				{/* Step 4: API Key */}
+				{/* Step 4: Voice Announcements */}
 				{step === 4 && (
-					<div className="space-y-6">
-						<h2 className="text-center font-bold text-2xl text-glow text-primary">
-							API CREDENTIALS
-						</h2>
-						<p className="text-center text-muted-foreground text-sm">
-							Optional: Add OpenSky Network credentials for unlimited tracking
-						</p>
-
-						<div className="space-y-3 border border-border bg-card p-4 text-sm">
-							<p className="text-primary">Setup Instructions:</p>
-							<ol className="list-inside list-decimal space-y-1 text-muted-foreground">
-								<li>
-									Go to{" "}
-									<a
-										href="https://opensky-network.org/"
-										rel="noopener noreferrer"
-										target="_blank"
-									>
-										opensky-network.org
-									</a>
-								</li>
-								<li>Create a free account</li>
-								<li>Navigate to Profile - API Credentials</li>
-								<li>Copy your Client ID and Client Secret</li>
-							</ol>
-						</div>
-
-						<div className="space-y-4">
-							<div className="space-y-2">
-								<Label className="text-muted-foreground text-xs">
-									CLIENT ID
-								</Label>
-								<Input
-									type="text"
-									placeholder="your-client-id"
-									value={apiClientId}
-									onChange={(e) => setApiClientId(e.target.value)}
-									className="border-border bg-input text-foreground placeholder:text-muted-foreground"
-								/>
-							</div>
-							<div className="space-y-2">
-								<Label className="text-muted-foreground text-xs">
-									CLIENT SECRET
-								</Label>
-								<Input
-									type="password"
-									placeholder="your-client-secret"
-									value={apiClientSecret}
-									onChange={(e) => setApiClientSecret(e.target.value)}
-									className="border-border bg-input text-foreground placeholder:text-muted-foreground"
-								/>
-							</div>
-						</div>
-
-						<p className="text-center text-muted-foreground text-xs">
-							Without credentials: 100 requests/day limit
-						</p>
-						<p className="text-center text-muted-foreground text-xs">
-							Credentials are stored locally in your browser only.
-						</p>
-
-						<div className="flex gap-4">
-							<Button
-								onClick={() => setStep(3)}
-								variant="outline"
-								className="flex-1 border-primary text-primary hover:bg-primary/10"
-							>
-								{"<"} BACK
-							</Button>
-							<Button
-								onClick={() => setStep(5)}
-								variant="outline"
-								className="flex-1 border-muted-foreground text-muted-foreground hover:bg-muted/10"
-							>
-								SKIP
-							</Button>
-							<Button
-								onClick={() => setStep(5)}
-								className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90"
-							>
-								SAVE {">"}
-							</Button>
-						</div>
-					</div>
-				)}
-
-				{/* Step 5: Voice Announcements */}
-				{step === 5 && (
 					<div className="space-y-6">
 						<h2 className="text-center font-bold text-2xl text-glow text-primary">
 							VOICE ALERTS
@@ -608,14 +514,14 @@ export function Onboarding({ onComplete }: OnboardingProps) {
 
 						<div className="flex gap-4">
 							<Button
-								onClick={() => setStep(4)}
+								onClick={() => setStep(3)}
 								variant="outline"
 								className="flex-1 border-primary text-primary hover:bg-primary/10"
 							>
 								{"<"} BACK
 							</Button>
 							<Button
-								onClick={() => setStep(6)}
+								onClick={() => setStep(5)}
 								className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90"
 							>
 								NEXT {">"}
@@ -624,8 +530,8 @@ export function Onboarding({ onComplete }: OnboardingProps) {
 					</div>
 				)}
 
-				{/* Step 6: Launch */}
-				{step === 6 && (
+				{/* Step 5: Launch */}
+				{step === 5 && (
 					<div className="space-y-6 text-center">
 						<h2 className="font-bold text-2xl text-glow text-primary">
 							ALL SYSTEMS GO
@@ -655,9 +561,6 @@ export function Onboarding({ onComplete }: OnboardingProps) {
 										{voiceSettings.enabled
 											? `Enabled (${SUPPORTED_LANGUAGES.find((l) => l.code === voiceSettings.language)?.name})`
 											: "Disabled"}
-									</p>
-									<p>
-										API: {apiClientId ? "Authenticated" : "Anonymous (Limited)"}
 									</p>
 								</div>
 

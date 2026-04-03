@@ -1,12 +1,11 @@
 {
 	"name": "aviron",
 	"version": "0.1.0",
-	"description": "Real-time aviation tracker — see every aircraft flying above you, powered by OpenSky Network.",
+	"description": "Real-time aviation tracker — see every aircraft flying above you.",
 	"author": "Oded Winberger",
 	"keywords": [
 		"aviron",
 		"aviation",
-		"opensky",
 		"real-time",
 		"nextjs",
 		"pwa"

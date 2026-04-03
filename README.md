@@ -1,6 +1,6 @@
 # ✈️ Aviron
 
-Real-time aviation tracker — see every aircraft flying above you, powered by the [OpenSky Network](https://opensky-network.org/).
+Real-time aviation tracker — see every aircraft flying above you, powered by [airplanes.live](https://airplanes.live/).
 
 ![Next.js](https://img.shields.io/badge/Next.js-16-black?logo=next.js)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.9-blue?logo=typescript)
@@ -9,12 +9,12 @@ Real-time aviation tracker — see every aircraft flying above you, powered by t
 ## Features
 
 - 🗺️ **Radar view** — live sweep animation showing aircraft in your vicinity
-- 📋 **Flight cards** — callsign, altitude, speed, heading, and country of origin
+- 📋 **Flight cards** — callsign, airline name, altitude, speed, heading, and country of origin
 - 🔍 **Flight detail panel** — deep-dive into a single aircraft
 - 📊 **Stats bar** — at-a-glance summary of visible traffic
 - 🌙 **Dark / light theme** — auto-detects system preference
 - ⚙️ **Configurable radius** — tune how far out you want to look
-- 🔑 **Optional OpenSky credentials** — higher rate limits when authenticated
+- 🗣️ **Voice announcements** — spoken alerts when aircraft pass overhead
 - 🕹️ **Demo mode** — works without any account or API key
 
 ## Getting Started
@@ -38,7 +38,7 @@ pnpm install
 pnpm dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) — the onboarding screen will ask for your location and (optionally) OpenSky credentials.
+Open [http://localhost:3000](http://localhost:3000) — the onboarding screen will ask for your location.
 
 ### Building for production
 
@@ -46,10 +46,6 @@ Open [http://localhost:3000](http://localhost:3000) — the onboarding screen wi
 pnpm build
 pnpm start
 ```
-
-## OpenSky Network credentials (optional)
-
-Anonymous access to the OpenSky API is rate-limited. For a smoother experience, [register a free account](https://opensky-network.org/index.php?option=com_users&view=registration) and enter your credentials in the app's settings. Credentials are stored locally in your browser and are **never sent to any server other than OpenSky**.
 
 ## Tech Stack
 
@@ -62,6 +58,8 @@ Anonymous access to the OpenSky API is rate-limited. For a smoother experience, 
 | State | Jotai |
 | Data fetching | SWR |
 | Linter / formatter | Biome |
+| Flight data | [airplanes.live](https://airplanes.live/) |
+| Airline lookup | [adsbdb.com](https://www.adsbdb.com/) |
 
 ## Contributing
 

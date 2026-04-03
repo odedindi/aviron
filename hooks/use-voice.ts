@@ -3,7 +3,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
 	type FlightData,
-	getAirlineName,
 	getHeadingDirection,
 	metersToFeet,
 	VOICE_TRANSLATIONS,
@@ -17,7 +16,10 @@ interface VoiceOption {
 	localService: boolean;
 }
 
-export function useVoice(voiceSettings: VoiceSettings) {
+export function useVoice(
+	voiceSettings: VoiceSettings,
+	airlineNames: Record<string, string> = {},
+) {
 	const [availableVoices, setAvailableVoices] = useState<VoiceOption[]>([]);
 	const announcedFlights = useRef<Set<string>>(new Set());
 	const pendingAnnouncements = useRef<FlightData[]>([]);
@@ -141,7 +143,10 @@ export function useVoice(voiceSettings: VoiceSettings) {
 	const buildAnnouncementText = useCallback(
 		(flight: FlightData): string => {
 			const callsign = flight.callsign?.trim() || flight.icao24;
-			const airline = getAirlineName(callsign);
+			const prefix = /^[A-Z]{3}$/.test(callsign.substring(0, 3))
+				? callsign.substring(0, 3)
+				: null;
+			const airline = (prefix && airlineNames[prefix]) || callsign;
 			const altitude = metersToFeet(flight.altitude);
 			const direction = getHeadingDirection(flight.heading);
 
@@ -151,7 +156,7 @@ export function useVoice(voiceSettings: VoiceSettings) {
 
 			return `${translations.attention}. ${airline} ${translations.flight} ${callsign}, ${translations.overhead} ${altitude.toLocaleString()} ${translations.feet}, ${translations.heading} ${direction}.`;
 		},
-		[voiceSettings.language],
+		[voiceSettings.language, airlineNames],
 	);
 
 	// Internal announce function that bypasses enabled check (used for preview)

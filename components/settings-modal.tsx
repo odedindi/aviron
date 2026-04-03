@@ -12,7 +12,6 @@ import {
 	DialogTitle,
 	DialogTrigger,
 } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
 	Select,
@@ -41,57 +40,35 @@ export const SettingsModal = memo(function SettingsModal({
 	onSave,
 }: SettingsModalProps) {
 	const [open, setOpen] = useState(false);
-	const [radiusKm, setRadiusKm] = useState(settings.radiusKm);
-	const [pollIntervalSecs, setPollIntervalSecs] = useState(
-		settings.pollIntervalSecs ?? 60,
-	);
-	const [units, setUnits] = useState<"metric" | "imperial">(
-		settings.units ?? "metric",
-	);
-	const [apiClientId, setApiClientId] = useState(settings.apiClientId || "");
-	const [apiClientSecret, setApiClientSecret] = useState(
-		settings.apiClientSecret || "",
-	);
 	const [voiceSettings, setVoiceSettings] = useState<VoiceSettings>(
 		settings.voiceSettings || getDefaultVoiceSettings(),
 	);
 
 	const { theme, setTheme } = useTheme();
-	const {
-		// availableVoices,
-		getVoicesForLanguage,
-		previewAnnouncement,
-		stopSpeaking,
-	} = useVoice(voiceSettings);
+	const { getVoicesForLanguage, previewAnnouncement, stopSpeaking } =
+		useVoice(voiceSettings);
 
 	const voicesForLang = useMemo(
 		() => getVoicesForLanguage(voiceSettings.language),
 		[voiceSettings.language, getVoicesForLanguage],
 	);
 
-	const handleSave = () => {
-		onSave({
-			...settings,
-			radiusKm,
-			units,
-			apiClientId: apiClientId || undefined,
-			apiClientSecret: apiClientSecret || undefined,
-			voiceEnabled: voiceSettings.enabled,
-			voiceSettings,
-			pollIntervalSecs,
-		});
-		setOpen(false);
+	const save = (patch: Partial<UserSettings>) => {
+		onSave({ ...settings, ...patch });
 	};
 
 	const handleVoiceSettingChange = (
 		key: keyof VoiceSettings,
 		value: string | number | boolean,
 	) => {
-		// If disabling voice, stop any current speech immediately
 		if (key === "enabled" && value === false) {
 			stopSpeaking();
 		}
-		setVoiceSettings((prev) => ({ ...prev, [key]: value }));
+		setVoiceSettings((prev) => {
+			const next = { ...prev, [key]: value };
+			save({ voiceEnabled: next.enabled, voiceSettings: next });
+			return next;
+		});
 	};
 
 	return (
@@ -109,7 +86,7 @@ export const SettingsModal = memo(function SettingsModal({
 				<DialogHeader>
 					<DialogTitle className="text-glow text-primary">SETTINGS</DialogTitle>
 					<DialogDescription className="text-muted-foreground text-xs">
-						Configure radar range, voice alerts, and API credentials
+						Configure radar range and voice alerts
 					</DialogDescription>
 				</DialogHeader>
 
@@ -198,11 +175,15 @@ export const SettingsModal = memo(function SettingsModal({
 							{([30, 60, 120] as const).map((secs) => (
 								<Button
 									key={secs}
-									variant={pollIntervalSecs === secs ? "default" : "outline"}
+									variant={
+										(settings.pollIntervalSecs ?? 60) === secs
+											? "default"
+											: "outline"
+									}
 									size="sm"
-									onClick={() => setPollIntervalSecs(secs)}
+									onClick={() => save({ pollIntervalSecs: secs })}
 									className={
-										pollIntervalSecs === secs
+										(settings.pollIntervalSecs ?? 60) === secs
 											? "bg-primary text-primary-foreground"
 											: "border-border"
 									}
@@ -221,11 +202,15 @@ export const SettingsModal = memo(function SettingsModal({
 						<Label className="text-muted-foreground text-sm">UNITS</Label>
 						<div className="flex gap-2">
 							<Button
-								variant={units === "metric" ? "default" : "outline"}
+								variant={
+									(settings.units ?? "metric") === "metric"
+										? "default"
+										: "outline"
+								}
 								size="sm"
-								onClick={() => setUnits("metric")}
+								onClick={() => save({ units: "metric" })}
 								className={
-									units === "metric"
+									(settings.units ?? "metric") === "metric"
 										? "bg-primary text-primary-foreground"
 										: "border-border"
 								}
@@ -233,11 +218,11 @@ export const SettingsModal = memo(function SettingsModal({
 								Metric (km)
 							</Button>
 							<Button
-								variant={units === "imperial" ? "default" : "outline"}
+								variant={settings.units === "imperial" ? "default" : "outline"}
 								size="sm"
-								onClick={() => setUnits("imperial")}
+								onClick={() => save({ units: "imperial" })}
 								className={
-									units === "imperial"
+									settings.units === "imperial"
 										? "bg-primary text-primary-foreground"
 										: "border-border"
 								}
@@ -252,25 +237,25 @@ export const SettingsModal = memo(function SettingsModal({
 						<Label className="text-muted-foreground text-sm">RADAR RANGE</Label>
 						<div className="flex justify-between text-muted-foreground text-xs">
 							<span>
-								{units === "imperial"
+								{settings.units === "imperial"
 									? `${kmToMiles(5).toFixed(0)} mi`
 									: "5 km"}
 							</span>
 							<span className="text-primary">
-								{units === "imperial"
-									? `${kmToMiles(radiusKm).toFixed(1)} mi`
-									: `${radiusKm} km`}
+								{settings.units === "imperial"
+									? `${kmToMiles(settings.radiusKm).toFixed(1)} mi`
+									: `${settings.radiusKm} km`}
 							</span>
 							<span>
-								{units === "imperial"
+								{settings.units === "imperial"
 									? `${kmToMiles(50).toFixed(0)} mi`
 									: "50 km"}
 							</span>
 						</div>
 
 						<Slider
-							value={[radiusKm]}
-							onValueChange={(value) => setRadiusKm(value[0])}
+							value={[settings.radiusKm]}
+							onValueChange={(value) => save({ radiusKm: value[0] })}
 							min={5}
 							max={50}
 							step={1}
@@ -302,7 +287,7 @@ export const SettingsModal = memo(function SettingsModal({
 										value={voiceSettings.language}
 										onValueChange={(value) => {
 											handleVoiceSettingChange("language", value);
-											handleVoiceSettingChange("voiceId", ""); // Reset voice when language changes
+											handleVoiceSettingChange("voiceId", "");
 										}}
 									>
 										<SelectTrigger className="border-border bg-input">
@@ -445,40 +430,6 @@ export const SettingsModal = memo(function SettingsModal({
 						)}
 					</div>
 
-					{/* API Credentials */}
-					<div className="space-y-3 border-border border-t pt-4">
-						<Label className="text-muted-foreground text-sm">
-							API CREDENTIALS
-						</Label>
-						<Input
-							type="text"
-							placeholder="Client ID"
-							value={apiClientId}
-							onChange={(e) => setApiClientId(e.target.value)}
-							className="border-border bg-input text-foreground placeholder:text-muted-foreground"
-						/>
-						<Input
-							type="password"
-							placeholder="Client Secret"
-							value={apiClientSecret}
-							onChange={(e) => setApiClientSecret(e.target.value)}
-							className="border-border bg-input text-foreground placeholder:text-muted-foreground"
-						/>
-						<p className="text-muted-foreground text-xs">
-							Get free credentials at{" "}
-							<a
-								href="https://opensky-network.org/"
-								rel="noopener noreferrer"
-								target="_blank"
-							>
-								opensky-network.org
-							</a>
-						</p>
-						<p className="text-muted-foreground text-xs">
-							Credentials are stored locally in your browser only.
-						</p>
-					</div>
-
 					{/* Location Info */}
 					<div className="space-y-2 border-border border-t pt-4">
 						<Label className="text-muted-foreground text-sm">POSITION</Label>
@@ -489,22 +440,6 @@ export const SettingsModal = memo(function SettingsModal({
 							Reload app to change location
 						</p>
 					</div>
-				</div>
-
-				<div className="flex gap-4">
-					<Button
-						onClick={() => setOpen(false)}
-						variant="outline"
-						className="flex-1 border-muted-foreground text-muted-foreground hover:bg-muted/10"
-					>
-						CANCEL
-					</Button>
-					<Button
-						onClick={handleSave}
-						className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90"
-					>
-						SAVE
-					</Button>
 				</div>
 			</DialogContent>
 		</Dialog>
