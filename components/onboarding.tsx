@@ -414,7 +414,16 @@ export function Onboarding({ onComplete }: OnboardingProps) {
 						<div className="space-y-3 border border-border bg-card p-4 text-sm">
 							<p className="text-primary">Setup Instructions:</p>
 							<ol className="list-inside list-decimal space-y-1 text-muted-foreground">
-								<li>Go to opensky-network.org</li>
+								<li>
+									Go to{" "}
+									<a
+										href="https://opensky-network.org/"
+										rel="noopener noreferrer"
+										target="_blank"
+									>
+										opensky-network.org
+									</a>
+								</li>
 								<li>Create a free account</li>
 								<li>Navigate to Profile - API Credentials</li>
 								<li>Copy your Client ID and Client Secret</li>

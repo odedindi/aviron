@@ -465,7 +465,14 @@ export const SettingsModal = memo(function SettingsModal({
 							className="border-border bg-input text-foreground placeholder:text-muted-foreground"
 						/>
 						<p className="text-muted-foreground text-xs">
-							Get free credentials at opensky-network.org
+							Get free credentials at{" "}
+							<a
+								href="https://opensky-network.org/"
+								rel="noopener noreferrer"
+								target="_blank"
+							>
+								opensky-network.org
+							</a>
 						</p>
 						<p className="text-muted-foreground text-xs">
 							Credentials are stored locally in your browser only.
