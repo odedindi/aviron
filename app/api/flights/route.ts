@@ -40,6 +40,7 @@ export async function GET(request: NextRequest) {
 		});
 
 		if (!response.ok) {
+			console.error(`OpenSky returned ${response.status} ${response.statusText}`);
 			const errorCode: ApiErrorCode =
 				response.status === 429
 					? "quota_exceeded"
