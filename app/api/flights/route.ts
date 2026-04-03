@@ -1,18 +1,86 @@
 import { type NextRequest, NextResponse } from "next/server";
 import type { ApiErrorCode } from "@/lib/types";
 
+interface TokenCache {
+	token: string;
+	expiresAt: number;
+}
+
+const tokenCache = new Map<string, TokenCache>();
+
+async function fetchFreshToken(
+	clientId: string,
+	clientSecret: string,
+): Promise<string | null> {
+	try {
+		const res = await fetch(
+			"https://auth.opensky-network.org/auth/realms/opensky-network/protocol/openid-connect/token",
+			{
+				method: "POST",
+				headers: { "Content-Type": "application/x-www-form-urlencoded" },
+				body: new URLSearchParams({
+					grant_type: "client_credentials",
+					client_id: clientId,
+					client_secret: clientSecret,
+				}),
+				cache: "no-store",
+			},
+		);
+
+		if (!res.ok) {
+			console.error(
+				`OpenSky token fetch failed: ${res.status} ${res.statusText}`,
+			);
+			return null;
+		}
+
+		const json = await res.json();
+		if (!json.access_token) {
+			console.error("OpenSky token response missing access_token:", json);
+			return null;
+		}
+
+		const expiresInMs = (json.expires_in ?? 1800) * 1000;
+		tokenCache.set(`${clientId}:${clientSecret}`, {
+			token: json.access_token,
+			expiresAt: Date.now() + expiresInMs,
+		});
+
+		return json.access_token;
+	} catch (err) {
+		console.error("OpenSky token fetch error:", err);
+		return null;
+	}
+}
+
+async function getBearerToken(
+	clientId: string,
+	clientSecret: string,
+): Promise<string | null> {
+	const cached = tokenCache.get(`${clientId}:${clientSecret}`);
+	if (cached && cached.expiresAt - Date.now() > 60_000) {
+		return cached.token;
+	}
+	return fetchFreshToken(clientId, clientSecret);
+}
+
 export async function GET(request: NextRequest) {
 	const searchParams = request.nextUrl.searchParams;
 	const lat = parseFloat(searchParams.get("lat") || "0");
 	const lon = parseFloat(searchParams.get("lon") || "0");
 	const radius = parseFloat(searchParams.get("radius") || "20");
-	// Read credentials from headers, not query params (prevents leaking in URL logs)
-	const clientId = request.headers.get("x-opensky-client-id") || "";
-	const clientSecret = request.headers.get("x-opensky-client-secret") || "";
 
-	// Calculate bounding box
-	const latDelta = radius / 111; // approx km per degree of latitude
-	const lonDelta = radius / (111 * Math.cos((lat * Math.PI) / 180)); // adjust for longitude
+	const clientId =
+		request.headers.get("x-opensky-client-id") ||
+		process.env.OPENSKY_CLIENT_ID ||
+		"";
+	const clientSecret =
+		request.headers.get("x-opensky-client-secret") ||
+		process.env.OPENSKY_CLIENT_SECRET ||
+		"";
+
+	const latDelta = radius / 111;
+	const lonDelta = radius / (111 * Math.cos((lat * Math.PI) / 180));
 
 	const lamin = lat - latDelta;
 	const lamax = lat + latDelta;
@@ -22,22 +90,23 @@ export async function GET(request: NextRequest) {
 	const url = `https://opensky-network.org/api/states/all?lamin=${lamin}&lomin=${lomin}&lamax=${lamax}&lomax=${lomax}`;
 
 	try {
-		const headers: HeadersInit = {
-			Accept: "application/json",
-		};
+		const headers: HeadersInit = { Accept: "application/json" };
 
-		// Add Basic Auth if credentials provided
 		if (clientId && clientSecret) {
-			const auth = Buffer.from(`${clientId}:${clientSecret}`).toString(
-				"base64",
-			);
-			headers.Authorization = `Basic ${auth}`;
+			const token = await getBearerToken(clientId, clientSecret);
+			if (token) headers.Authorization = `Bearer ${token}`;
 		}
 
-		const response = await fetch(url, {
-			headers,
-			next: { revalidate: 10 }, // Cache for 10 seconds
-		});
+		let response = await fetch(url, { headers, next: { revalidate: 30 } });
+
+		if (response.status === 401 && clientId && clientSecret) {
+			tokenCache.delete(`${clientId}:${clientSecret}`);
+			const freshToken = await fetchFreshToken(clientId, clientSecret);
+			if (freshToken) {
+				headers.Authorization = `Bearer ${freshToken}`;
+				response = await fetch(url, { headers, next: { revalidate: 30 } });
+			}
+		}
 
 		if (!response.ok) {
 			console.error(
@@ -58,11 +127,7 @@ export async function GET(request: NextRequest) {
 		}
 
 		const data = await response.json();
-
-		return NextResponse.json({
-			...data,
-			demoMode: false,
-		});
+		return NextResponse.json({ ...data, demoMode: false });
 	} catch (error) {
 		console.error("OpenSky API error:", error);
 		return NextResponse.json({
